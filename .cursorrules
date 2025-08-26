@@ -1,0 +1,208 @@
+# SAP Commerce MCP Server Development Rules
+
+## Project Overview
+This project is an MCP (Model Context Protocol) server that provides tools for integrating with the SAP Commerce REST API. The server exposes commerce functionality through MCP tools that can be used by AI assistants.
+
+## Tech Stack
+- TypeScript/Node.js
+- MCP SDK (@modelcontextprotocol/sdk)
+- Zod for schema validation
+- SAP Commerce REST API (OCC v2)
+
+## SAP Commerce API Context
+
+### Base Configuration
+- **API Base URL**: `https://localhost:9002/occ/v2`
+- **API Version**: v2.2.1 (Commerce Webservices)
+- **OpenAPI Version**: 3.0.1
+- **Authentication**: OAuth2 (Password flow and Client Credentials)
+
+### Key Endpoint Patterns
+All endpoints follow the pattern: `/{baseSiteId}/...`
+
+#### Core Commerce Endpoints:
+- **Products**: `/{baseSiteId}/products`, `/{baseSiteId}/categories/{categoryId}/products`
+- **Users**: `/{baseSiteId}/users`, `/{baseSiteId}/users/{userId}/*`
+- **Carts**: `/{baseSiteId}/users/{userId}/carts`, `/cart`
+- **Orders**: `/{baseSiteId}/orders/{code}`, `/{baseSiteId}/users/{userId}/orders`
+- **Customers**: `/{baseSiteId}/customergroups`, `/{baseSiteId}/users`
+- **Base Sites**: `/basesites`
+- **Catalogs**: `/{baseSiteId}/catalogs`
+- **Payments**: `/{baseSiteId}/users/{userId}/paymentdetails`
+
+#### Business Features:
+- **Quotes**: Quote management and approval workflows
+- **Order Approvals**: B2B order approval processes
+- **Replenishment Orders**: Recurring order functionality
+- **Product Search**: Advanced search with facets and filters
+- **Store Finder**: Point of service location services
+- **Promotions**: Promotion and voucher management
+
+### Authentication Methods
+- **OAuth2 Password Flow**: For user authentication (`oauth2_Password`)
+- **OAuth2 Client Credentials**: For system-to-system integration (`oauth2_client_credentials`)
+- **Bearer Token**: All requests require `Authorization: Bearer {token}`
+
+## MCP Server Development Guidelines
+
+### 1. Tool Structure
+- Each MCP tool should represent a specific SAP Commerce operation
+- Use descriptive tool names that match business functionality
+- Group related operations logically (e.g., product-search, cart-add-item, order-status)
+
+### 2. Parameter Validation
+- Use Zod schemas for all tool parameters
+- Validate required SAP Commerce parameters (e.g., baseSiteId, userId)
+- Include proper descriptions for all parameters
+- Handle optional parameters with sensible defaults
+
+### 3. Error Handling
+- Implement robust error handling for API failures
+- Return meaningful error messages in MCP tool responses
+- Handle common SAP Commerce error scenarios:
+  - Authentication failures (401)
+  - Authorization issues (403)
+  - Resource not found (404)
+  - Validation errors (400)
+
+### 4. Response Formatting
+- Format SAP Commerce responses for readability
+- Extract key information from complex API responses
+- Use consistent formatting across all tools
+- Include relevant metadata (prices, availability, etc.)
+
+### 5. Authentication Management
+- Implement token management for OAuth2 flows
+- Handle token refresh scenarios
+- Support both user and system authentication contexts
+- Secure storage of authentication credentials
+
+### 6. Base Site Handling
+- Always require baseSiteId parameter for commerce operations
+- Validate base site exists and is accessible
+- Provide clear error messages for invalid base sites
+
+### 7. Common Data Types to Handle
+
+#### Product Data:
+- Product codes, names, descriptions
+- Pricing information (Price objects with currency)
+- Stock status and availability
+- Product images and media
+- Product categories and classifications
+
+#### Order/Cart Data:
+- Entry numbers and quantities
+- Delivery modes and addresses
+- Payment information
+- Promotions and discounts
+- Order status and fulfillment
+
+#### User Data:
+- User IDs and customer information
+- Addresses and contact details
+- User groups and permissions (B2B)
+- Authentication status
+
+### 8. Tool Categories to Implement
+
+#### Product Management:
+- `product-search`: Search products with filters
+- `product-details`: Get detailed product information
+- `product-availability`: Check stock status
+- `product-categories`: Browse category hierarchy
+
+#### Cart Operations:
+- `cart-create`: Create new cart
+- `cart-add-item`: Add products to cart
+- `cart-update`: Update cart contents
+- `cart-get`: Retrieve cart details
+
+#### Order Management:
+- `order-place`: Place order from cart
+- `order-status`: Get order status
+- `order-history`: Retrieve order history
+- `order-track`: Track order fulfillment
+
+#### User Services:
+- `user-login`: Authenticate user
+- `user-profile`: Get user profile
+- `user-addresses`: Manage user addresses
+
+#### B2B Features:
+- `quote-create`: Create quote from cart
+- `quote-submit`: Submit quote for approval
+- `order-approval`: Handle approval workflows
+
+### 9. Code Organization
+```
+src/
+├── index.ts              # Main MCP server setup
+├── tools/                # Individual MCP tools
+│   ├── product/          # Product-related tools
+│   ├── cart/             # Cart operations
+│   ├── order/            # Order management
+│   ├── user/             # User services
+│   └── b2b/              # B2B features
+├── types/                # TypeScript type definitions
+├── auth/                 # Authentication utilities
+└── utils/                # Common utilities
+```
+
+### 10. Best Practices
+
+#### API Communication:
+- Use consistent HTTP headers (User-Agent, Accept, Content-Type)
+- Implement retry logic for transient failures
+- Log API requests and responses for debugging
+- Respect rate limits and implement backoff strategies
+
+#### Data Transformation:
+- Transform SAP Commerce responses to user-friendly formats
+- Extract essential information from verbose API responses
+- Provide consistent data structures across tools
+- Handle missing or null values gracefully
+
+#### Performance:
+- Cache frequently accessed data (e.g., product catalogs)
+- Implement efficient pagination for large result sets
+- Minimize API calls through intelligent batching
+- Use appropriate field selection to reduce payload size
+
+#### Security:
+- Never log sensitive authentication data
+- Validate all user inputs before API calls
+- Implement proper access control for B2B features
+- Handle PII data according to privacy requirements
+
+### 11. Testing Strategy
+- Unit tests for individual tools
+- Integration tests with SAP Commerce API
+- Mock API responses for offline testing
+- Test error scenarios and edge cases
+
+### 12. Documentation Requirements
+- Document each MCP tool with clear descriptions
+- Provide examples of tool usage
+- Document required SAP Commerce configuration
+- Include troubleshooting guides for common issues
+
+## File Naming Conventions
+- Use kebab-case for file names: `product-search.ts`
+- Use descriptive names that match tool functionality
+- Group related files in appropriate directories
+- Follow TypeScript naming conventions for exports
+
+## Dependencies Management
+- Keep dependencies minimal and up-to-date
+- Use exact versions for critical dependencies
+- Document any SAP Commerce version compatibility requirements
+- Regularly audit for security vulnerabilities
+
+## Environment Configuration
+- Support configurable SAP Commerce endpoints
+- Allow authentication method selection
+- Provide development/staging/production configurations
+- Use environment variables for sensitive configuration
+
+This file serves as the authoritative guide for developing the SAP Commerce MCP server. All development should follow these guidelines to ensure consistency, reliability, and maintainability.
