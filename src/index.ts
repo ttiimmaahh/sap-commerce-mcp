@@ -5,7 +5,8 @@ import cors from "cors";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
-const SAP_API_BASE = "https://api.c90spw6e32-arganollc1-d1-public.model-t.cc.commerce.ondemand.com/occ/v2";
+// const SAP_API_BASE = "https://api.c90spw6e32-arganollc1-d1-public.model-t.cc.commerce.ondemand.com/occ/v2";
+const SAP_API_BASE = "https://localhost:9002/occ/v2";
 const USER_AGENT = "sap-commerce-mcp/1.0";
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 
@@ -743,7 +744,7 @@ const server = new McpServer({
 // Register SAP Commerce tools
 server.tool(
   "product-search",
-  "Search for products in SAP Commerce",
+  "Search and discover products in SAP Commerce catalog with advanced filtering capabilities. Use this tool to find products by name, description, category, or keyword. Supports pagination for large result sets and returns detailed product information including pricing, stock levels, images, and availability. Perfect for product discovery, catalog browsing, and helping customers find specific items.",
   {
     baseSiteUrl: z.string().describe("Base Site URL (e.g., 'https://mysiteUrl')"),
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
@@ -844,7 +845,7 @@ server.tool(
 
 server.tool(
   "get-base-sites",
-  "Get available base sites from SAP Commerce",
+  "Retrieve all available base sites (storefronts/brands) configured in SAP Commerce. Use this tool to discover which base sites are available before performing other operations, as most SAP Commerce API calls require a valid baseSiteId. Base sites represent different storefronts, brands, or regional sites within the same Commerce instance. Essential for multi-site deployments.",
   {
     fields: z.string().optional().default("DEFAULT").describe("Response field configuration"),
   },
@@ -906,7 +907,7 @@ server.tool(
 
 server.tool(
   "order-history",
-  "Get user's order history from SAP Commerce (limited to 5 most recent orders)",
+  "Retrieve a user's order history from SAP Commerce with filtering and pagination options. Returns recent orders with summary information including order codes, status, dates, totals, and business information (cost centers, purchase orders for B2B). Use this tool to help customers track their past purchases, check order status, or review purchase history. Limited to 5 most recent orders for performance.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1005,7 +1006,7 @@ server.tool(
 
 server.tool(
   "order-details",
-  "Get detailed information about a specific order from SAP Commerce.  The user will provide the order code, also known as order number or order id.",
+  "Retrieve comprehensive details about a specific order using its order code/number. Returns complete order information including all line items, pricing breakdown, delivery details, payment information, customer details, and business information (B2B cost centers, purchase orders). Use this tool when customers need full order details, want to review what they purchased, check delivery status, or verify billing information.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1071,7 +1072,7 @@ server.tool(
 
 server.tool(
   "add-to-cart",
-  "Add a product to the user's shopping cart in SAP Commerce",
+  "Add products to the user's shopping cart in SAP Commerce. Supports adding single or multiple quantities of any product by product code. Optionally supports in-store pickup by specifying a pickup store location. Returns cart modification details including updated line totals and confirmation of items added. Essential for building shopping experiences and product selection workflows.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1172,7 +1173,7 @@ server.tool(
 
 server.tool(
   "get-cart",
-  "Get the current shopping cart details from SAP Commerce",
+  "Retrieve comprehensive details about the user's current shopping cart from SAP Commerce. Returns complete cart information including all items, quantities, pricing, applied promotions, delivery options, payment details, and business information. Use this tool to display cart contents, calculate totals, review items before checkout, or provide cart status to customers.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1238,7 +1239,7 @@ server.tool(
 
 server.tool(
   "update-cart-entry",
-  "Update the quantity of a product in the user's cart or remove it entirely",
+  "Modify or remove items in the user's shopping cart by updating quantities for specific cart entries. Use this tool to change item quantities, remove unwanted items (by setting quantity to 0), or adjust cart contents based on customer requests. Returns updated cart entry details including new totals and confirmation of changes made.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1341,7 +1342,7 @@ server.tool(
 
 server.tool(
   "set-delivery-address",
-  "Set the delivery address for the user's cart",
+  "Configure the delivery address for the user's cart during checkout process. Supports both using existing saved addresses (by addressId) or creating new addresses with full address details. Essential for order fulfillment and shipping. Validates address information and handles international shipping with country and region codes.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1460,7 +1461,7 @@ server.tool(
 
 server.tool(
   "set-delivery-mode",
-  "Set the delivery mode for the user's cart",
+  "Configure the shipping method (delivery mode) for the user's cart. Sets how items will be delivered (standard, express, overnight, etc.) and updates cart with associated delivery costs. Must be used with a valid delivery mode code from the available options. Required step during checkout before placing an order.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1526,7 +1527,7 @@ server.tool(
 
 server.tool(
   "get-delivery-modes",
-  "Get available delivery modes for the user's cart",
+  "Retrieve all available shipping methods (delivery modes) for the user's current cart. Returns delivery options with names, codes, descriptions, and associated costs. Use this tool to present shipping choices to customers during checkout, showing delivery speeds and pricing to help them make informed decisions.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1613,7 +1614,7 @@ server.tool(
 
 server.tool(
   "place-order",
-  "Place an order from the user's current cart",
+  "Complete the checkout process by placing an order from the user's prepared cart. Converts cart to order, processes payment, and initiates fulfillment. Requires cart to have delivery address, delivery mode, and payment information configured. Returns complete order details with order number for tracking. Final step in the purchase workflow.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
     userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
@@ -1716,7 +1717,7 @@ server.tool(
 
 server.tool(
   "b2b-add-to-cart",
-  "Add a product to an organization user's B2B cart in SAP Commerce",
+  "Add products to an organization user's B2B cart in SAP Commerce with business-specific features. Supports organizational purchasing workflows including cost center assignments, organization user validation, and B2B-specific product catalogs. Use this tool for B2B customers who need to track purchases through organizational structures and approval processes.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'powertools-spa')"),
     orgUserId: z.string().describe("Organization user identifier (use 'current' for authenticated user)"),
@@ -1741,6 +1742,10 @@ server.tool(
         ],
         isError: true,
       };
+    }
+
+    if (!cartId || cartId == null) {
+      cartId = "current";
     }
 
     try {
@@ -1809,7 +1814,7 @@ server.tool(
 
 server.tool(
   "b2b-get-cart",
-  "Get organization user's current B2B cart details from SAP Commerce",
+  "Retrieve comprehensive details about an organization user's B2B cart including business-specific information. Returns cart contents with organizational context such as cost centers, organization units, payment types, purchase order numbers, and customer hierarchies. Essential for B2B checkout workflows and organizational purchase tracking.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'powertools-spa')"),
     orgUserId: z.string().describe("Organization user identifier (e.g., 'mark.rivers@pronto-hw.com')"),
@@ -1881,7 +1886,7 @@ server.tool(
 
 server.tool(
   "b2b-update-cart-entry",
-  "Update the quantity of a product in an organization user's B2B cart or remove it entirely",
+  "Modify or remove items in an organization user's B2B cart with business context validation. Updates quantities for specific cart entries while maintaining organizational purchasing rules and constraints. Supports removal of items (quantity 0) and quantity adjustments. Essential for B2B cart management and organizational purchasing workflows.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'powertools-spa')"),
     orgUserId: z.string().describe("Organization user identifier (e.g., 'mark.rivers@pronto-hw.com')"),
@@ -1974,8 +1979,131 @@ server.tool(
 );
 
 server.tool(
+  "create-cart",
+  "Create a new shopping cart or restore an existing cart for a user in SAP Commerce. This tool initializes a fresh cart session, enabling customers to start shopping or restore a previously saved cart state. Essential for cart management workflows, session recovery, and multi-cart scenarios. Returns cart details including cart code and initial state.",
+  {
+    baseSiteId: z.string().describe("Base site identifier (e.g., 'electronics-spa')"),
+    userId: z.string().describe("User identifier (use 'current' for authenticated user)"),
+    cartName: z.string().optional().describe("Optional name for the cart (useful for saved carts)"),
+    description: z.string().optional().describe("Optional description for the cart"),
+    oldCartId: z.string().optional().describe("Existing cart ID to restore/clone from"),
+    fields: z.string().optional().default("DEFAULT").describe("Response field configuration"),
+  },
+  async ({ baseSiteId, userId, cartName, description, oldCartId, fields }, extra) => {
+    // Extract access token from the request metadata
+    const token = (extra._meta as any)?.sapToken;
+    if (!token) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: "Error: No access token provided. Please ensure your MCP client is configured to pass an access token.",
+          },
+        ],
+        isError: true,
+      };
+    }
+
+    try {
+      const createCartUrl = `${SAP_API_BASE}/${baseSiteId}/users/${userId}/carts`;
+      
+      const requestBody: any = {};
+      
+      if (cartName) {
+        requestBody.name = cartName;
+      }
+      
+      if (description) {
+        requestBody.description = description;
+      }
+      
+      if (oldCartId) {
+        requestBody.oldCartId = oldCartId;
+      }
+
+      const params = new URLSearchParams({
+        fields: fields,
+      });
+
+      const fullUrl = `${createCartUrl}?${params.toString()}`;
+
+      const cartData = await makeRequest<SAPCart>(fullUrl, token, 'POST', Object.keys(requestBody).length > 0 ? requestBody : undefined);
+
+      if (!cartData) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Failed to create cart via SAP Commerce API",
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      let resultText = `✅ **CART CREATED SUCCESSFULLY!** ✅\n\n`;
+      resultText += `**Cart Code:** ${cartData.code}\n`;
+      
+      if (cartData.guid) {
+        resultText += `**Cart GUID:** ${cartData.guid}\n`;
+      }
+      
+      if (cartName) {
+        resultText += `**Cart Name:** ${cartName}\n`;
+      }
+      
+      if (description) {
+        resultText += `**Description:** ${description}\n`;
+      }
+      
+      if (oldCartId) {
+        resultText += `**Restored from Cart:** ${oldCartId}\n`;
+      }
+      
+      resultText += `**User:** ${cartData.user?.name || userId}\n`;
+      resultText += `**Total Items:** ${cartData.totalItems || 0}\n`;
+      
+      if (cartData.totalPriceWithTax) {
+        resultText += `**Current Total:** ${cartData.totalPriceWithTax.formattedValue}\n`;
+      } else if (cartData.totalPrice) {
+        resultText += `**Current Total:** ${cartData.totalPrice.formattedValue}\n`;
+      }
+
+      // Add cart details if it has content
+      if (cartData.entries && cartData.entries.length > 0) {
+        resultText += `\n**Cart Contents:**\n`;
+        cartData.entries.forEach((entry, index) => {
+          resultText += `${index + 1}. ${entry.product?.name || 'Product'} (${entry.product?.code || 'N/A'}) - Qty: ${entry.quantity}\n`;
+        });
+      } else {
+        resultText += `\n**Status:** Empty cart ready for shopping\n`;
+      }
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: resultText,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error creating cart: ${error instanceof Error ? error.message : String(error)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  },
+);
+
+server.tool(
   "b2b-place-order",
-  "Place an order from an organization user's B2B cart in SAP Commerce",
+  "Complete B2B organizational checkout by placing an order from a prepared B2B cart. Handles business-specific order processing including cost center validation, organizational approval workflows, purchase order number assignment, and B2B payment methods. Creates orders with full organizational context for procurement tracking and approval management.",
   {
     baseSiteId: z.string().describe("Base site identifier (e.g., 'powertools-spa')"),
     orgUserId: z.string().describe("Organization user identifier (e.g., 'mark.rivers@pronto-hw.com')"),
@@ -2084,7 +2212,7 @@ app.use(express.json({ limit: '10mb' }));
 // Custom middleware to extract access token and add to request context
 app.use('/mcp', (req, res, next) => {
   const token = req.body.params?.arguments?.access_token ? req.body.params?.arguments?.access_token : null;
-  
+
   if (token && req.body && req.body.params) {
     // Inject token into request metadata
     if (!req.body.params._meta) {
